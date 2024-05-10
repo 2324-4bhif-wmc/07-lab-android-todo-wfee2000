@@ -18,7 +18,7 @@ endif::[]
 
 image::https://img.shields.io/badge/version-1.0.0-blue[]
 
-[sidcrete]
+[discrete]
 == Dokumentation
 
 * Dokumentieren Sie hier grob Ihre durchgeführten Arbeiten, mit
