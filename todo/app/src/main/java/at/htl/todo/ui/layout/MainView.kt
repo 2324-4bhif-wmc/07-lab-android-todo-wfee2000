@@ -48,27 +48,36 @@ class MainView @Inject constructor() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                Todos(model = viewModel, modifier = Modifier.padding(all = 32.dp))
+                Todos(
+                    model = viewModel,
+                    modifier = Modifier.padding(all = 32.dp),
+                    action = {
+                        store.setTodos(it)
+                    })
             }
         }
     }
 }
 
 @Composable
-fun Todos(model: Model, modifier: Modifier = Modifier) {
+fun Todos(model: Model, modifier: Modifier = Modifier, action: (Array<Todo>) -> Unit) {
     val todos = model.todos
     LazyColumn(
         modifier = modifier.padding(16.dp)
     ) {
         items(todos.size) { index ->
-            TodoRow(todo  = todos[index])
+                TodoRow(todo  = todos[index], action = {
+                    todos[index].completed = !todos[index].completed
+                    action(todos)
+                }
+            )
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun TodoRow(todo: Todo) {
+fun TodoRow(todo: Todo, action: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,7 +96,7 @@ fun TodoRow(todo: Todo) {
         Spacer(modifier = Modifier.weight(1f))
         Checkbox(
             checked = todo.completed,
-            onCheckedChange = {  }
+            onCheckedChange = { action() }
         )
     }
 }
@@ -102,6 +111,6 @@ fun TodoPreview() {
     model.todos = arrayOf(todo)
 
     TodoAppTheme {
-        Todos(model)
+        Todos(model, action = {model.todos = it})
     }
 }
