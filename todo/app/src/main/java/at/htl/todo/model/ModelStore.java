@@ -18,5 +18,8 @@ public class ModelStore extends Store<Model> {
     public void setTodos(Todo[] todos) {
         apply(model -> model.todos = todos);
     }
+    public void setDetail(Todo todo) {
+        apply(model -> model.detailTodo.todo = todo);
+    }
 }
 

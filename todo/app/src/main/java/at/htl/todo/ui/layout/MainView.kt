@@ -3,24 +3,23 @@ package at.htl.todo.ui.layout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rxjava3.subscribeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import at.htl.todo.model.Model
 import at.htl.todo.model.ModelStore
 import at.htl.todo.model.Todo
@@ -52,7 +51,7 @@ class MainView @Inject constructor() {
                     model = viewModel,
                     modifier = Modifier.padding(all = 32.dp),
                     action = {
-                        store.setTodos(it)
+                        store.setDetail(it)
                     })
             }
         }
@@ -60,50 +59,46 @@ class MainView @Inject constructor() {
 }
 
 @Composable
-fun Todos(model: Model, modifier: Modifier = Modifier, action: (Array<Todo>) -> Unit) {
+fun Todos(model: Model, modifier: Modifier = Modifier, action: (Todo) -> Unit) {
     val todos = model.todos
-    LazyColumn(
-        modifier = modifier.padding(16.dp)
-    ) {
-        items(todos.size) { index ->
-                TodoRow(todo  = todos[index], action = {
-                    todos[index].completed = !todos[index].completed
-                    action(todos)
+    when (model.detailTodo.todo) {
+        null -> {
+            LazyColumn(
+                modifier = modifier.padding(16.dp)
+            ) {
+                items(todos.size) { index ->
+                    TodoRow(todo  = todos[index], action = {
+                        action(todos[index])
+                    }
+                    )
+                    HorizontalDivider()
                 }
-            )
-            HorizontalDivider()
+            }
+        }
+        else -> {
+            TodoDetail(todo = model.detailTodo.todo)
         }
     }
 }
 
 @Composable
 fun TodoRow(todo: Todo, action: () -> Unit) {
-    Row(
+    Card(colors =
+    if (todo.completed)
+        CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+    else
+        CardDefaults.cardColors(MaterialTheme.colorScheme.errorContainer),
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = todo.title,
-            style = MaterialTheme.typography.bodySmall
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = todo.id.toString(),
-            style = MaterialTheme.typography.bodySmall
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Checkbox(
-            checked = todo.completed,
-            onCheckedChange = { action() }
-        )
+            .height(50.dp)
+            .width(500.dp),
+        onClick = { action() }) {
+        Text(text = todo.title, fontSize = 40.sp)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun TodoPreview() {
+fun TodoViewPreview() {
     val model = Model()
     val todo = Todo()
     todo.id = 1
@@ -111,6 +106,18 @@ fun TodoPreview() {
     model.todos = arrayOf(todo)
 
     TodoAppTheme {
-        Todos(model, action = {model.todos = it})
+        Todos(model, action = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TodoPreview() {
+    val todo = Todo()
+    todo.id = 1
+    todo.title = "First Todo"
+
+    TodoAppTheme {
+        TodoRow(todo = todo, action = {})
     }
 }
