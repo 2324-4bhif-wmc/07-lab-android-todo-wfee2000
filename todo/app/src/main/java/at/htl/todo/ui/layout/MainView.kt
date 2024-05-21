@@ -50,16 +50,15 @@ class MainView @Inject constructor() {
                 Todos(
                     model = viewModel,
                     modifier = Modifier.padding(all = 32.dp),
-                    action = {
-                        store.setDetail(it)
-                    })
+                    store = store
+                )
             }
         }
     }
 }
 
 @Composable
-fun Todos(model: Model, modifier: Modifier = Modifier, action: (Todo) -> Unit) {
+fun Todos(model: Model, modifier: Modifier = Modifier, store: ModelStore? = null) {
     val todos = model.todos
     when (model.detailTodo.todo) {
         null -> {
@@ -68,7 +67,7 @@ fun Todos(model: Model, modifier: Modifier = Modifier, action: (Todo) -> Unit) {
             ) {
                 items(todos.size) { index ->
                     TodoRow(todo  = todos[index], action = {
-                        action(todos[index])
+                        store?.setDetail(todos[index])
                     }
                     )
                     HorizontalDivider()
@@ -76,7 +75,9 @@ fun Todos(model: Model, modifier: Modifier = Modifier, action: (Todo) -> Unit) {
             }
         }
         else -> {
-            TodoDetail(todo = model.detailTodo.todo)
+            if (store != null) {
+                TodoDetail(todo = model.detailTodo.todo, store = store )
+            }
         }
     }
 }
@@ -106,7 +107,7 @@ fun TodoViewPreview() {
     model.todos = arrayOf(todo)
 
     TodoAppTheme {
-        Todos(model, action = {})
+        Todos(model)
     }
 }
 

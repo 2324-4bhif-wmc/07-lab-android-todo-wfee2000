@@ -15,6 +15,10 @@ public class ModelStore extends Store<Model> {
         super(Model.class, new Model());
     }
 
+    public void checkTodoWithId(Todo todo) {
+        apply(model -> model.todos[Math.toIntExact(todo.id)].completed = !todo.completed);
+    }
+
     public void setTodos(Todo[] todos) {
         apply(model -> model.todos = todos);
     }
