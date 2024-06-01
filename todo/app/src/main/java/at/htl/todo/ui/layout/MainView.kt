@@ -60,23 +60,17 @@ class MainView @Inject constructor() {
 @Composable
 fun Todos(model: Model, modifier: Modifier = Modifier, store: ModelStore? = null) {
     val todos = model.todos
-    when (model.detailTodo.todo) {
-        null -> {
-            LazyColumn(
-                modifier = modifier.padding(16.dp)
-            ) {
-                items(todos.size) { index ->
-                    TodoRow(todo  = todos[index], action = {
-                        store?.setDetail(todos[index])
-                    }
-                    )
-                    HorizontalDivider()
-                }
-            }
-        }
-        else -> {
-            if (store != null) {
-                TodoDetail(todo = model.detailTodo.todo, store = store )
+    if (model.detailedTodoId != null) {
+        TodoDetail(model, model.detailedTodoId, store)
+    } else {
+        LazyColumn(
+            modifier = modifier.padding(16.dp)
+        ) {
+            items(todos.size) { index ->
+                TodoRow(todo  = todos[index], action = {
+                    store?.setDetail(todos[index])
+                })
+                HorizontalDivider()
             }
         }
     }
@@ -108,17 +102,5 @@ fun TodoViewPreview() {
 
     TodoAppTheme {
         Todos(model)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TodoPreview() {
-    val todo = Todo()
-    todo.id = 1
-    todo.title = "First Todo"
-
-    TodoAppTheme {
-        TodoRow(todo = todo, action = {})
     }
 }
